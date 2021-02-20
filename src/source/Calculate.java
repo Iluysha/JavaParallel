@@ -98,4 +98,14 @@ public class Calculate {
             }
         }
     }
+
+    public float firstCalculate(CommonResource res, Calculate c) {
+        c.multiplyMatrix(res.MD, res.MT, res.MA);
+        c.sumMatrix(res.MA, res.MZ, res.MA);
+        c.multiplyMatrix(res.ME, res.MM, res.MV);
+        c.difMatrix(res.MA, res.MA, res.MV);
+
+        c.multiplyArrayMatrix(res.MT, res.D, res.V);
+        return c.maxInArray(res.C);
+    }
 }

@@ -44,13 +44,7 @@ public class ExecutorClass {
         System.out.println("Task " + (num + 1) + " start");
 
 
-        c.multiplyMatrix(res.MD, res.MT, res.MA);
-        c.sumMatrix(res.MA, res.MZ, res.MA);
-        c.multiplyMatrix(res.ME, res.MM, res.MV);
-        c.difMatrix(res.MA, res.MA, res.MV);
-
-        c.multiplyArrayMatrix(res.MT, res.D, res.V);
-        float max = c.maxInArray(res.C);
+        float max = c.firstCalculate(res, c);
 
         if(res.max < max) {
             res.max = max;

@@ -107,6 +107,6 @@ public class DataWorker {
 
     public void write(CommonResource res, String name) {
         writeArray(res.A,"src/data/output/array/" + name + ".txt");
-        writeMatrix(res.MA,"src/data/output/matrix/lab" + name + ".txt");
+        writeMatrix(res.MA,"src/data/output/matrix/" + name + ".txt");
     }
 }

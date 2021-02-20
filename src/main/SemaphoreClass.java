@@ -42,13 +42,7 @@ public class SemaphoreClass {
                 ((num != p - 1) ? n / p * (num + 1) : n), n, true);
         System.out.println("Task " + (num + 1) + " start");
 
-        c.multiplyMatrix(res.MD, res.MT, res.MA);
-        c.sumMatrix(res.MA, res.MZ, res.MA);
-        c.multiplyMatrix(res.ME, res.MM, res.MV);
-        c.difMatrix(res.MA, res.MA, res.MV);
-
-        c.multiplyArrayMatrix(res.MT, res.D, res.V);
-        float max = c.maxInArray(res.C);
+        float max = c.firstCalculate(res, c);
 
         semaphore.acquire();
         if(res.max < max) {

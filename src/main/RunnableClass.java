@@ -17,16 +17,6 @@ public class RunnableClass {
         CommonResource res = new CommonResource(n);
         CyclicBarrier cb1 = new CyclicBarrier(p);
         CyclicBarrier cb2 = new CyclicBarrier(p);
-        /*
-        c.writeArray(c.randomArray(res.n), res.n, "inputArrayB.txt");
-        c.writeArray(c.randomArray(res.n), res.n, "inputArrayC.txt");
-        c.writeArray(c.randomArray(res.n), res.n, "inputArrayD.txt");
-        c.writeMatrix(c.randomMatrix(res.n), res.n, "inputMatrixMD.txt");
-        c.writeMatrix(c.randomMatrix(res.n), res.n, "inputMatrixME.txt");
-        c.writeMatrix(c.randomMatrix(res.n), res.n, "inputMatrixMM.txt");
-        c.writeMatrix(c.randomMatrix(res.n), res.n, "inputMatrixMT.txt");
-        c.writeMatrix(c.randomMatrix(res.n), res.n, "inputMatrixMZ.txt");
-        */
 
         dataWorker.read(res);
         res.startTime = System.nanoTime();
@@ -44,13 +34,7 @@ public class RunnableClass {
                 ((num != p - 1) ? n / p * (num + 1) : n), n, true);
         System.out.println("Task " + (num + 1) + " start");
 
-        c.multiplyMatrix(res.MD, res.MT, res.MA);
-        c.sumMatrix(res.MA, res.MZ, res.MA);
-        c.multiplyMatrix(res.ME, res.MM, res.MV);
-        c.difMatrix(res.MA, res.MA, res.MV);
-
-        c.multiplyArrayMatrix(res.MT, res.D, res.V);
-        float max = c.maxInArray(res.C);
+        float max = c.firstCalculate(res, c);
 
         synchronized (res) {
             if(res.max < max) {

@@ -1,8 +1,6 @@
 package main;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.Callable;
 import source.*;
@@ -21,15 +19,13 @@ class BlockingQueueClass {
         CyclicBarrier cb = new CyclicBarrier(p);
         BlockingQueue<Float> queue = new ArrayBlockingQueue<>(p);
         queue.put((float) 0);
-        List<Future<String>>  futures = new ArrayList<>();
         MyBlockThread callable = new MyBlockThread(res, n, p, queue, cb);
 
         dataWorker.read(res);
         res.startTime = System.nanoTime();
 
         for (int i = 0; i < p; i++) {
-            Future future = executor.submit(callable);
-            futures.add(future);
+            executor.submit(callable);
         }
 
         executor.shutdown();
@@ -42,7 +38,7 @@ class BlockingQueueClass {
     }
 }
 
-class MyBlockThread implements Callable {
+class MyBlockThread implements Callable<String> {
 
     private final CommonResource res;
     int n;
@@ -59,20 +55,16 @@ class MyBlockThread implements Callable {
     }
 
     @Override
-    public Object call() throws InterruptedException {
+    public String call() throws InterruptedException {
         String name = Thread.currentThread().getName();
         int num = Integer.parseInt(name.substring(name.length() - 1)) - 1;
         Calculate c = new Calculate(n / p * num,
                 ((num != p - 1) ? n / p * (num + 1) : n), n, true);
-        System.out.println("Task " + (num + 1) + " start");
-        
-        c.multiplyMatrix(res.MD, res.MT, res.MA);
-        c.sumMatrix(res.MA, res.MZ, res.MA);
-        c.multiplyMatrix(res.ME, res.MM, res.MV);
-        c.difMatrix(res.MA, res.MA, res.MV);
 
-        c.multiplyArrayMatrix(res.MT, res.D, res.V);
-        float max = c.maxInArray(res.C);
+        System.out.println("Task " + (num + 1) + " start");
+
+        float max = c.firstCalculate(res, c);
+
         max = Math.max(queue.take(), max);
         queue.put(max);
         res.max = max;

@@ -20,7 +20,8 @@ public class ForkJoinClass {
         dataWorker.read(res);
         res.startTime = System.nanoTime();
 
-        new ForkJoinPool(p).invoke(new MyTask(res, n, p, 0, false));
+        new ForkJoinPool(p).invoke(new SubTask1(res, n, p, 0));
+        new ForkJoinPool(p).invoke(new SubTask2(res, n, p, 0));
 
         long endTime = System.nanoTime();
         System.out.println("Time: " + (endTime - res.startTime) / 1000000 + " ms");
@@ -29,20 +30,18 @@ public class ForkJoinClass {
     }
 }
 
-class MyTask extends RecursiveAction {
+class SubTask1 extends RecursiveAction {
 
     private final CommonResource res;
     int n;
     int p;
     int num;
-    boolean forked;
 
-    MyTask(CommonResource res, int n, int p, int num, boolean forked) {
+    SubTask1(CommonResource res, int n, int p, int num) {
         this.res = res;
         this.n = n;
         this.p = p;
         this.num = num;
-        this.forked = forked;
     }
 
     @Override
@@ -51,37 +50,50 @@ class MyTask extends RecursiveAction {
                 ((num != p - 1) ? n / p * (num + 1) : n), n, true);
 
         if(num < p) {
-            if(!forked) {
-                MyTask subTask1 = new MyTask(res, n, p, num + 1, false);
-                subTask1.fork();
+            SubTask1 subTask1 = new SubTask1(res, n, p, num + 1);
+            subTask1.fork();
 
-                System.out.println("Task " + (num + 1) + " start");
+            System.out.println("Task " + (num + 1) + " start");
 
-                c.multiplyMatrix(res.MD, res.MT, res.MA);
-                c.sumMatrix(res.MA, res.MZ, res.MA);
-                c.multiplyMatrix(res.ME, res.MM, res.MV);
-                c.difMatrix(res.MA, res.MA, res.MV);
+            float max = c.firstCalculate(res, c);
 
-                c.multiplyArrayMatrix(res.MT, res.D, res.V);
-                float max = c.maxInArray(res.C);
-
-                if(res.max < max) {
-                    res.max = max;
-                }
-                subTask1.join();
+            if(res.max < max) {
+                res.max = max;
             }
+            subTask1.join();
+        }
+    }
+}
 
-            if(forked || num == 0) {
-                MyTask subTask2 = new MyTask(res, n, p, num + 1, true);
-                subTask2.fork();
+class SubTask2 extends RecursiveAction {
 
-                c.multiplyFloatArray(res.B, res.max, res.A);
-                c.difArrays(res.V, res.A, res.A);
+    private final CommonResource res;
+    int n;
+    int p;
+    int num;
 
-                System.out.println("Task " + (num + 1) + " end");
+    SubTask2(CommonResource res, int n, int p, int num) {
+        this.res = res;
+        this.n = n;
+        this.p = p;
+        this.num = num;
+    }
 
-                subTask2.join();
-            }
+    @Override
+    public void compute() {
+        Calculate c = new Calculate(n / p * num,
+                ((num != p - 1) ? n / p * (num + 1) : n), n, true);
+
+        if(num < p) {
+            SubTask2 subTask2 = new SubTask2(res, n, p, num + 1);
+            subTask2.fork();
+
+            c.multiplyFloatArray(res.B, res.max, res.A);
+            c.difArrays(res.V, res.A, res.A);
+
+            System.out.println("Task " + (num + 1) + " end");
+
+            subTask2.join();
         }
     }
 }
